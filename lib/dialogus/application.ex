@@ -17,7 +17,9 @@ defmodule Dialogus.Application do
       # Start the Presence system
       Dialogus.Presence,
       # Start the State supervisor
-      Dialogus.State
+      Dialogus.State,
+      # Start bots
+      Dialogus.MainBot
       # Start a worker by calling: Dialogus.Worker.start_link(arg)
       # {Dialogus.Worker, arg}
     ]
