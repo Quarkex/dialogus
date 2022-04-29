@@ -14,6 +14,8 @@ defmodule Dialogus.Application do
       {Phoenix.PubSub, name: Dialogus.PubSub},
       # Start the Endpoint (http/https)
       DialogusWeb.Endpoint,
+      # Start the Presence system
+      Dialogus.Presence,
       # Start the State supervisor
       Dialogus.State
       # Start a worker by calling: Dialogus.Worker.start_link(arg)
