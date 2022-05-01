@@ -1,5 +1,8 @@
 # Dialogus
 
+Dialogus is an example module of a chatbot system build on top of
+Phoenix.PubSub with persistence based on DETS.
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
