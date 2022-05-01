@@ -63,7 +63,7 @@ defmodule DialogusWeb.BotChatLive do
         %{event: "anwser", payload: message},
         %{assigns: %{id: id, messages: messages}} = socket
       ) do
-    messages = messages ++ [{:question, message}]
+    messages = messages ++ [{:anwser, message}]
     Dialogus.State.Messages.set(id, messages)
     {:noreply, assign(socket, :messages, messages)}
   end
