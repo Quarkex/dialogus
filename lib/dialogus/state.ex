@@ -86,7 +86,7 @@ defmodule Dialogus.State do
         state = Map.merge(Keyword.get(args, :state, %{}), get_persistence())
 
         with {:ok, pid} <-
-               GenServer.start_link(__MODULE__, state, name: __MODULE__) do
+               GenServer.start_link(__MODULE__, {false, state}, name: __MODULE__) do
           State.broadcast(state, :start_link, __MODULE__)
           {:ok, pid}
         else
@@ -94,7 +94,7 @@ defmodule Dialogus.State do
         end
       end
 
-      @persist_tick 1000 * 30
+      @persist_tick 1000
 
       def init(state) do
         Process.flag(:trap_exit, true)
@@ -118,30 +118,38 @@ defmodule Dialogus.State do
       def unset(key),
         do: GenServer.cast(__MODULE__, {:unset, key})
 
-      def handle_call(:get, _from, state),
-        do: {:reply, state, state}
+      def handle_call(:get, _from, {stale, state}),
+        do: {:reply, state, {stale, state}}
 
-      def handle_call({:get, key}, _from, state),
-        do: {:reply, state[key], state}
+      def handle_call({:get, key}, _from, {stale, state}),
+        do: {:reply, state[key], {stale, state}}
 
       def handle_cast({:set, new_state}, _old_state),
-        do: {:noreply, report(new_state)}
+        do: {:noreply, report({true, new_state})}
 
-      def handle_cast({:unset, key}, state),
-        do: {:noreply, report(Map.delete(state, key))}
+      def handle_cast({:unset, key}, {_stale, state}),
+        do: {:noreply, report({true, Map.delete(state, key)})}
 
-      def handle_cast({:set, key, nil}, state),
-        do: {:noreply, report(Map.delete(state, key))}
+      def handle_cast({:set, key, nil}, {_stale, state}),
+        do: {:noreply, report({true, Map.delete(state, key)})}
 
-      def handle_cast({:set, key, value}, state),
-        do: {:noreply, report(Map.put(state, key, value))}
+      def handle_cast({:set, key, value}, {_stale, state}),
+        do: {:noreply, report({true, Map.put(state, key, value)})}
 
-      def handle_info({:EXIT, _pid, _reason}, state),
-        do: {:noreply, set_persistence(state)}
+      def handle_info({:EXIT, _pid, _reason}, {true, state}),
+        do: {:noreply, {false, set_persistence(state)}}
 
-      def handle_info({:persist, tick}, state) do
-        Process.send_after(self(), :persist, tick)
-        {:noreply, set_persistence(state)}
+      def handle_info({:EXIT, _pid, _reason}, {false, state}),
+        do: {:noreply, {false, state}}
+
+      def handle_info({:persist, tick}, {true, state}) do
+        Process.send_after(self(), {:persist, tick}, tick)
+        {:noreply, {false, set_persistence(state)}}
+      end
+
+      def handle_info({:persist, tick}, {false, state}) do
+        Process.send_after(self(), {:persist, tick}, tick)
+        {:noreply, {false, state}}
       end
     end
   end

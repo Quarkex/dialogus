@@ -19,7 +19,7 @@ defmodule Dialogus.Application do
       # Start the State supervisor
       Dialogus.State,
       # Start bots
-      Dialogus.MainBot
+      Dialogus.MainDialogHandler
       # Start a worker by calling: Dialogus.Worker.start_link(arg)
       # {Dialogus.Worker, arg}
     ]
