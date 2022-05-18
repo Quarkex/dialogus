@@ -1,6 +1,6 @@
-defmodule Dialogus.Bot do
+defmodule Dialogus.DialogHandler do
   def topic,
-    do: "bot_chat"
+    do: "dialog"
 
   def utterance(id, payload),
     do:
@@ -17,7 +17,7 @@ defmodule Dialogus.Bot do
       alias Dialogus.PubSub
       alias Dialogus.Presence
       import Phoenix.PubSub, only: [subscribe: 2, unsubscribe: 2]
-      import Dialogus.Bot, only: [topic: 0]
+      import Dialogus.DialogHandler, only: [topic: 0]
 
       def broadcast(topic, event, payload),
         do:
@@ -52,21 +52,21 @@ defmodule Dialogus.Bot do
         {:noreply, state}
       end
 
-      # Ensure "bot" is always a key of the payload map
+      # Ensure "dialog_handler" is always a key of the payload map
       def handle_info(%{event: event, payload: payload, topic: topic}, state)
-          when is_map(payload) and not is_map_key(payload, "bot") do
+          when is_map(payload) and not is_map_key(payload, "dialog_handler") do
         handle_info(
-          %{event: event, payload: Map.put(payload, "bot", nil), topic: topic},
+          %{event: event, payload: Map.put(payload, "dialog_handler", nil), topic: topic},
           state
         )
       end
 
-      # Any "utterance" event with the current bot defined as target inside the
-      # payload map will be anwsered by this bot if the function "anwser" is
+      # Any "utterance" event with the current dialog_handler defined as target inside the
+      # payload map will be anwsered by this dialog_handler if the function "anwser" is
       # defined. You may use pattern match with the function definition to
       # handle the different messages.
       def handle_info(
-            %{event: "utterance", payload: %{"bot" => __MODULE__} = payload, topic: topic},
+            %{event: "utterance", payload: %{"dialog_handler" => __MODULE__} = payload, topic: topic},
             state
           ) do
         if function_exported?(__MODULE__, :anwser, 1),

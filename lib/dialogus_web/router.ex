@@ -18,7 +18,7 @@ defmodule DialogusWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
-    live("/:id", BotChatLive)
+    live("/:id", DialogLive)
   end
 
   # Other scopes may use custom stacks.

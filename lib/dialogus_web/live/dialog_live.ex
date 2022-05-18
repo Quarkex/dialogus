@@ -1,9 +1,9 @@
-defmodule DialogusWeb.BotChatLive do
+defmodule DialogusWeb.DialogLive do
   use DialogusWeb, :live_view
 
   alias DialogusWeb.Endpoint
   alias Dialogus.Presence
-  import Dialogus.Bot, only: [topic: 0]
+  import Dialogus.DialogHandler, only: [topic: 0]
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -44,7 +44,7 @@ defmodule DialogusWeb.BotChatLive do
         %{"payload" => payload},
         %{assigns: %{id: id}} = socket
       ) do
-    Dialogus.Bot.utterance(id, payload)
+    Dialogus.DialogHandler.utterance(id, payload)
     {:noreply, socket}
   end
 
