@@ -13,7 +13,7 @@ defmodule DialogusWeb.BotChatLive do
     {:ok,
      assign(socket, %{
        id: id,
-       messages: Dialogus.State.Messages.value(id) || []
+       messages: Dialogus.State.Messages.get(id) || []
      })}
   end
 
@@ -30,7 +30,7 @@ defmodule DialogusWeb.BotChatLive do
     </ul>
 
     <div>
-      <.form let={f} for={:payload} phx_submit={:question} >
+      <.form let={f} for={:payload} phx_submit={:utterance} >
       <%= text_input f, :text %>
       <%= submit gettext("Submit") %>
       </.form>
@@ -40,20 +40,20 @@ defmodule DialogusWeb.BotChatLive do
 
   # Pass the event triggered from the form to a PubSub message.
   def handle_event(
-        "question",
+        "utterance",
         %{"payload" => payload},
         %{assigns: %{id: id}} = socket
       ) do
-    Dialogus.Bot.question(id, payload)
+    Dialogus.Bot.utterance(id, payload)
     {:noreply, socket}
   end
 
-  # Append questions when they get here from pubsub (for multi-window sync)
+  # Append utterances when they get here from pubsub (for multi-window sync)
   def handle_info(
-        %{event: "question", payload: message},
+        %{event: "utterance", payload: message},
         %{assigns: %{id: id, messages: messages}} = socket
       ) do
-    messages = messages ++ [{:question, message}]
+    messages = messages ++ [{:utterance, message}]
     Dialogus.State.Messages.set(id, messages)
     {:noreply, assign(socket, :messages, messages)}
   end

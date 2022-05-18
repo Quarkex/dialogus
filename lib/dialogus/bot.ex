@@ -2,10 +2,10 @@ defmodule Dialogus.Bot do
   def topic,
     do: "bot_chat"
 
-  def question(id, payload),
+  def utterance(id, payload),
     do:
       Phoenix.PubSub.broadcast(Dialogus.PubSub, "#{topic()}:#{id}", %{
-        event: "question",
+        event: "utterance",
         topic: "#{topic()}:#{id}",
         payload: payload
       })
@@ -61,12 +61,12 @@ defmodule Dialogus.Bot do
         )
       end
 
-      # Any "question" event with the current bot defined as target inside the
+      # Any "utterance" event with the current bot defined as target inside the
       # payload map will be anwsered by this bot if the function "anwser" is
       # defined. You may use pattern match with the function definition to
       # handle the different messages.
       def handle_info(
-            %{event: "question", payload: %{"bot" => __MODULE__} = payload, topic: topic},
+            %{event: "utterance", payload: %{"bot" => __MODULE__} = payload, topic: topic},
             state
           ) do
         if function_exported?(__MODULE__, :anwser, 1),
