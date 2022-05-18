@@ -32,5 +32,5 @@ dialogus-*.tar
 npm-debug.log
 /assets/node_modules/
 
-# Persistence :dets files
-state_persistence.dat
+# State persistence files
+/_state_persistence/
